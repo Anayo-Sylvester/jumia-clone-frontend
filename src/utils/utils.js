@@ -10,17 +10,19 @@ class Utilities {
     prevPrice = Number(prevPrice);
     return `${Math.round(((currentPrice - prevPrice) / currentPrice) * 100)}%`;
   }
-
+  subtract(a,b){
+    return (Number(a) - Number(b))
+  }
   convertKoboTONaira(price) {
     return Number(price) / 100;
   }
 
   formatMoney(money) {
-    return money.toLocaleString();
+    return `₦${money.toLocaleString()}`
   }
 
   getAmountRemainingPercent(remaining, total) {
-    return `${100 - ((Number(remaining) / Number(total)) * 100).toFixed(0)}%`;
+    return `${100 - ((Number(remaining) / Number(total)) * 100).toFixed(0)}%`
   }
 
   // Arrow function to fix "this" context
@@ -30,12 +32,12 @@ class Utilities {
     prevPrice,
     image,
     name,
-    amountRemaining,
+    amountOrdered,
     initialQuantity,
     id,
   }) => {
+    const amountRemaining = this.subtract(initialQuantity,amountOrdered)// Calculates remaining stock
     const stop = this.getAmountRemainingPercent(amountRemaining, initialQuantity); // Calculates remaining stock percentage
-
     return (
       <Link
         to={`${urls.product}/${id}`}
@@ -52,11 +54,11 @@ class Utilities {
         <h3 className="whitespace-nowrap text-ellipsis overflow-hidden">{name}</h3>
 
         {/* Current price */}
-        <p>₦{this.formatMoney(this.convertKoboTONaira(currentPrice))}</p>
+        <p>{this.formatMoney(this.convertKoboTONaira(currentPrice))}</p>
 
         {/* Previous price (strikethrough) */}
         <p className="text-sm line-through">
-          ₦{this.formatMoney(this.convertKoboTONaira(prevPrice))}
+          {this.formatMoney(this.convertKoboTONaira(prevPrice))}
         </p>
 
         {/* Stock availability */}
