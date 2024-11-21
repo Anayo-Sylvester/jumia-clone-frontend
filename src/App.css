@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+*{
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body{
+  margin: auto 0;
+  background: black;
+}
+
+.header-btm-grid-temp-col{
+  grid-template-columns: minmax(90px,200px) minmax(220px,2fr) minmax(295px,1.4fr);
+}
+.el-max-width{
+  max-width: 1170px;
+}
+.horizontal-center{
+  display:flex;
+  justify-content:center;
+}
+
+.heart.active{
+  fill: #00fc3f;
+}
+
+/* hidden not working in header top so i created hide & unhide to fix it */
+.hide{
+  @apply hidden;
+}
+
+@media (min-width: 640px) { /* This is Tailwind's sm breakpoint (640px) */
+  .sm\:unhide {
+      @apply block; /* Different styles for small screens and up */
+  }
+}
+
+/* converts black to orange */
+@layer utilities {
+  .filter-orange {
+    filter: invert(47%) sepia(100%) saturate(610%) hue-rotate(-15deg) brightness(98%) contrast(92%);
+  }
+
+  @keyframes click {
+    from{
+      width: 0%;
+      height: 0%;
+    }to{
+      width: 140%;
+      height: 140%;
+    }
+  }
+  .animate-click::before{
+    content: "";
+    position: absolute;
+    background-color: hsla(0, 0%, 0%, 0.207);
+    border-radius: 40px;
+    /* width: 120%;
+    height: 150%; */
+    animation: click 0.5s ease-in-out backwards;
+  }
+}
+
+section.deals, .products-card-container {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+section.deals::-webkit-scrollbar, .products-card-container::-webkit-scrollbar { 
+  display: none;  /* Safari and Chrome */
+}
