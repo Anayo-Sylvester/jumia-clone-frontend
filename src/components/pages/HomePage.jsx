@@ -1,10 +1,14 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Hero from "../Homepage/Hero";
 import DealsSection from "../Homepage/Deals";
 import DisplayFirstTenProducts from "../Homepage/ProductsCard";
+import { responsiveScreenLimits } from "../../App";
 
 export default function HomePage() {
   const bg = `${process.env.PUBLIC_URL}/images/bg-pernod.jpeg`; // Background image for the homepage
+    useEffect(()=>{
+        document.title = `Jumia Clone - Your One-stop Shop for Everything`
+    },[])
 
     return (
         // Main section with a background image
@@ -17,7 +21,7 @@ export default function HomePage() {
                 }}
             >
             {/* Content container for the homepage */}
-            <section className="mx-auto bg-transparent lg:max-w-[950px] xl:max-w-[1184px]">
+            <section className={`bg-transparent ${responsiveScreenLimits}`}>
                 <Hero /> {/* Hero section for the homepage */}
                 <DealsSection /> {/* Section showcasing deals */}
                 <DisplayFirstTenProducts /> {/* Section displaying the first 10 products */}
