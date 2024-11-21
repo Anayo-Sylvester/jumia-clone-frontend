@@ -19,6 +19,7 @@ export const urls = {
   products: `${process.env.PUBLIC_URL}/products`,
   product: `${process.env.PUBLIC_URL}/product`
 }
+export const responsiveScreenLimits = `mx-auto lg:max-w-[950px] xl:max-w-[1184px]`;
 export function App() {
   console.log('App')
   return (

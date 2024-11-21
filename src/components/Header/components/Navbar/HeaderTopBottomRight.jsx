@@ -180,7 +180,7 @@ const HeaderBottomRight = () => {
     ));
 
     return (
-        <div className="header-bottom-right relative flex gap-x-4 place-content-center sm:min-w-[293px]">
+        <div className="header-bottom-right relative flex gap-x-4 place-content-center ml-[-8px] sm:ml-0 sm:min-w-[293px]">
             {renderMenus}
         </div>
     );

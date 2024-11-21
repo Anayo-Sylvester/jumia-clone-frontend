@@ -28,23 +28,19 @@ export default function ProductsCard() {
    */
   const generateProducts =
     firstTenDataRef.current?.hits?.map(
-      ({ _id, name, image, currentPrice, prevPrice, initialQuantity, AmountOrdered }, index) => {
-        const amountRemaining = Number(initialQuantity) - Number(AmountOrdered); // Calculates remaining stock
-
-        return (
+      ({ _id, name, image, currentPrice, prevPrice, initialQuantity, AmountOrdered }) => (
           <utility.ProductStructure
-            key={_id || index} // Use `_id` for stable keys, fallback to `index`
+            key={_id} // Use `_id` for stable keys, fallback to `index`
             id={_id}
             discount={utility.calcDiscount(currentPrice, prevPrice)}
             currentPrice={currentPrice}
             prevPrice={prevPrice}
             image={image}
             name={name}
-            amountRemaining={amountRemaining}
+            amountOrdered={AmountOrdered}
             initialQuantity={initialQuantity}
           />
-        );
-      }
+        )
     ) || [];
 
   return (
@@ -59,13 +55,12 @@ export default function ProductsCard() {
 
       {/* Product list container */}
       <div className="products-card-container flex gap-4 overflow-scroll p-3">
-        {isLoading ? (
-          <div>Loading...</div> // Show loading indicator while fetching data
-        ) : generateProducts.length ? (
-          <>{generateProducts}</> // Render product cards once data is loaded
-        ) : (
-          <div>No content found</div>
-        )}
+        {isLoading ? 
+          (<div>Loading...</div>): // Show loading indicator while fetching data
+          generateProducts.length ? 
+            (<>{generateProducts}</>): // Render product cards once data is loaded
+            (<div>No content found</div>)
+        }
       </div>
     </div>
   );

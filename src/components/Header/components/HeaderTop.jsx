@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { urls } from "../../../App"; // Import URL constants
+import { responsiveScreenLimits, urls } from "../../../App"; // Import URL constants
 
 /**
  * Component for the top section of the header.
@@ -19,7 +19,7 @@ export default function HeaderTop() {
     return (
         // Top header section for promotional links and branding, hidden on small screens
         <div className="header-top horizontal-center py-1.5 hide bg-gray-300 sm:unhide">
-            <div className="header-top-container grid grid-cols-2 w-full items-center mx-auto justify-between lg:max-w-[950px] xl:max-w-[1184px] md:grid-cols-3 px-2">
+            <div className={`header-top-container grid grid-cols-2 w-full items-center justify-between ${responsiveScreenLimits} md:grid-cols-3 px-2`}>
 
                 {/* Left section with favicon and 'Sell on Jumia' link */}
                 <div className="flex items-center header-top-left">
