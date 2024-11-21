@@ -49,8 +49,14 @@ export default function MobileNavbar() {
     ));
 
     return (
-        <div className="fixed bottom-0 left-0 flex w-full justify-around p-1 bg-white shadow-[0px_-3px_6px_1px_rgba(0,0,0,0.75)] overflow-hidden sm:hidden">
+        <>
+          {/* Spacer to ensure elements covered by the navbar are visible */}
+            <div className="mt-16 sm:hidden"></div> 
+
+          {/* Fixed bottom navigation bar */}
+            <div className="fixed bottom-0 left-0 w-full flex justify-around p-1 bg-white shadow-md overflow-hidden sm:hidden">
             {navButtons}
-        </div>
+            </div>
+        </>
     );
 }
