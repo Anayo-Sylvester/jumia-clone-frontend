@@ -5,6 +5,7 @@ import { apiBaseUrl, responsiveScreenLimits } from "../../../App";
 import { utility } from "../../../utils/utils";
 import Filter from "./components/FilterBar";
 import Notfound from "../Notfound";
+import LoadingFallback from "../../Layouts/LoadingFallback";
 
 // Function to generate the API URL based on search parameters
 const generateApiUrl = (searchParams, validParamsQuery) => {
@@ -85,7 +86,7 @@ export default function ProductsPage() {
     return (
         <div className={responsiveScreenLimits}>
             {isLoading ? (
-                <p>Loading...</p>
+                <LoadingFallback />
             ) : error ? (
                 <p>Error loading products: {error.message}</p>
             ) : (

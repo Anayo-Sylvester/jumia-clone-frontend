@@ -12,6 +12,7 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { apiBaseUrl, urls } from "../../App";
 import { utility } from "../../utils/utils";
+import LoadingFallback from "../Layouts/LoadingFallback";
 
 // Function to fetch categories data
 const fetchCategories = async () => {
@@ -45,7 +46,7 @@ const CategoryStructure = ({ categoryName }) => (
 // Render categories based on the query state
 const renderCategories = () => {
     if (isLoading) {
-        return <li>Loading categories...</li>;
+        return <LoadingFallback/>;
     }
 
     if (isError) {
