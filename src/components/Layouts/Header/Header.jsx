@@ -4,7 +4,6 @@ import HeaderTopBtm from "./components/Navbar/HeaderTopBottom";
 
 
 function Header({isLoggedIn,setIsLoggedIn}) {
-    console.log("main header")
     return(
         <header>
             <HeaderTop/>

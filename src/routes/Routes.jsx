@@ -27,16 +27,20 @@ const RoutesEl = ({isLoggedIn, setIsLoggedIn}) => {
         },
         {
             path: `${process.env.PUBLIC_URL}/product/:id`,
-            element: <ProductPage/>
+            element: <ProductPage {...{isLoggedIn}} />
         },
         {
             path: `${process.env.PUBLIC_URL}/categories`,
             element: <Categories/>
         },
         {
-            path: `${process.env.PUBLIC_URL}/:action`,
-            element: <AuthenticationPage {...{isLoggedIn,setIsLoggedIn}}/>
-        }
+            path: `${process.env.PUBLIC_URL}/login`,
+            element: <AuthenticationPage {...{isLoggedIn, setIsLoggedIn}}/>
+        },
+        {
+            path: `${process.env.PUBLIC_URL}/register`,
+            element: <AuthenticationPage {...{isLoggedIn, setIsLoggedIn}}/>
+        }        
     ]
 
     const generateRouteElement = routes.map((route,id)=>(

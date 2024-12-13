@@ -31,7 +31,7 @@ export default function Toast({ success, message, isToastVisible,setIsToastVisib
         } ${!isToastVisible && "scale-0"} 
         grid gap-3 grid-cols-[1fr_20px]
         place-items-center fixed top-0 right-0 left-0 w-fit mx-auto my-4 
-        p-4 rounded-md shadow-md transition-all duration-300 ease-in-out transform`}
+        p-4 rounded-md text-white shadow-md transition-all duration-300 ease-in-out transform`}
       >
         <p>{message}</p>
         <button
