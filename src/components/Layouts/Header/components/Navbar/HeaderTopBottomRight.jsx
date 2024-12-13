@@ -177,7 +177,7 @@ const HeaderBottomRight = ({ isLoggedIn, setIsLoggedIn }) => {
         >
             <div className={`label flex gap-1 cursor-pointer h-full items-center justify-around relative hover:filter-orange`}>
                 <img className="h-9 cursor-pointer invert sm:h-6 sm:invert-0" src={icon} alt={`${name} icon`} id={`${name}-icon`} />
-                <label className="flex cursor-pointer sm:block" htmlFor={`${name}-icon`}>{name}</label>
+                <label className="cursor-pointer hidden sm:block" htmlFor={`${name}-icon`}>{name}</label>
                 {subMenu && (
                     <img
                         className={`h-2 my-auto ${!isDropdownOpen && "rotate-180"}`}
