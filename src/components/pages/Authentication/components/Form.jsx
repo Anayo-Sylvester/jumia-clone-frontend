@@ -118,13 +118,13 @@ const Form = ({ param, setIsLoggedIn,setIsToastVisible,setToastData}) => {
       if (response.status === 200 && response.data?.token) {
         localStorage.setItem('jumiaCloneToken', response.data.token);
         setIsLoggedIn(true);
-        navigate('/login');
-        setToastData(prevData => ({
-          ...prevData,
-          message: 'Logged in successfully',
-          success: !prevData.success
-        }));
-        setIsToastVisible(true);
+        navigate('/');
+        // setToastData(prevData => ({
+        //   ...prevData,
+        //   message: 'Logged in successfully',
+        //   success: !prevData.success
+        // }));
+        // setIsToastVisible(true);
       } else if (response.status === 201) {
         navigate('/login');
         setIsToastVisible(true);
