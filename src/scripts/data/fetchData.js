@@ -1,9 +1,9 @@
-const fetchData = async (dataRef,setLoading,url) => {
+const fetchData = async (setDataState,setLoading,url) => {
     try {
         const res = await fetch(url);
         const data = await res.json();
-        dataRef.current = data;
-        console.log(dataRef.current)
+        setDataState(data);
+        console.log(data)
     } catch (error) {
         console.error('Error fetching data:', error);
     } finally {

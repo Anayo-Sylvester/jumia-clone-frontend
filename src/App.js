@@ -1,12 +1,9 @@
 import './App.css'
-import React, { useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
-import HomePage from './components/pages/HomePage'; // Adjust the path as necessary
-import RoutesEl from './components/Routes';
+import React, { lazy, Suspense } from 'react';
 
-export const apiBaseUrl = `http://localhost:5000/api/v1/products`
-// loading animation
-//category icons
+export const apiBaseUrl = process.env.REACT_APP_API_URL;
+const RoutesEl = lazy(() => import('./routes/Routes'));
+
 export const urls = {
   cart: `${process.env.PUBLIC_URL}/cart`,
   home: `${process.env.PUBLIC_URL}/`,
@@ -14,18 +11,20 @@ export const urls = {
   help: `${process.env.PUBLIC_URL}/help`,
   account: `${process.env.PUBLIC_URL}/account`,
   sell: `${process.env.PUBLIC_URL}/sell`,
-  category: `${process.env.PUBLIC_URL}/category`,
+  category: `${process.env.PUBLIC_URL}/categories`,
   feed: `${process.env.PUBLIC_URL}/feed`,
   products: `${process.env.PUBLIC_URL}/products`,
-  product: `${process.env.PUBLIC_URL}/product`
-}
-export const responsiveScreenLimits = `mx-auto lg:max-w-[950px] xl:max-w-[1184px]`;
-export function App() {
-  console.log('App')
-  return (
-    <>
-      <RoutesEl/>
-    </>
-  );
+  product: `${process.env.PUBLIC_URL}/product`,
+  login: `${process.env.PUBLIC_URL}/login`,
+  register: `${process.env.PUBLIC_URL}/register`
 }
 
+export const responsiveScreenLimits = `mx-auto lg:max-w-[950px] xl:max-w-[1184px]`;
+
+export function App({isLoggedIn, setIsLoggedIn}) {
+  return (
+    <Suspense fallback={<div></div>}>
+      <RoutesEl {...{isLoggedIn, setIsLoggedIn}} />
+    </Suspense>
+  );
+}

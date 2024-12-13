@@ -31,6 +31,8 @@ body{
   @apply hidden;
 }
 
+
+
 @media (min-width: 640px) { /* This is Tailwind's sm breakpoint (640px) */
   .sm\:unhide {
       @apply block; /* Different styles for small screens and up */

@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import HeaderBtmRight from "./HeaderTopBottomRight"; // Import right section of header
-import { urls } from "../../../../App"; // Import URL constants
+import { urls } from "../../../../../App"; // Import URL constants
 
 /**
  * Main component for the bottom section of the header.
  * Includes the logo, search bar, and right-side menu.
  * @returns {JSX.Element} The rendered bottom header section.
  */
-export default function HeaderBottomSection() {
+export default function HeaderBottomSection({ isLoggedIn }) {
     const navigate = useNavigate();
     const [searchValue, setSearchValue] = useState(''); // Tracks the search input value
     const searchRef = useRef(); // Ref for the search input element
@@ -43,6 +43,7 @@ export default function HeaderBottomSection() {
     const searchProduct = () => {
         navigate(urls.products + `?search=${searchValue}`);
         setSearchValue(""); // Clears the search value from the input
+        window.location.reload();// this reloads the entire website after url is changed
     };
 
     /**
@@ -85,7 +86,7 @@ export default function HeaderBottomSection() {
             <div className="header-bottom-container flex gap-5 w-full lg:max-w-[950px] xl:max-w-[1184px] sm:justify-between">
                 <LogoSection />
                 <SearchBar />
-                <HeaderBtmRight />
+                <HeaderBtmRight {...{isLoggedIn}}/>
             </div>
         </div>
     );

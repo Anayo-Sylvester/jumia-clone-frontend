@@ -3,16 +3,16 @@ import { urls } from "../App";
 import React from "react"
 
 class Utilities {
-  constructor() {}
-
   calcDiscount(currentPrice, prevPrice) {
     currentPrice = Number(currentPrice);
     prevPrice = Number(prevPrice);
     return `${Math.round(((currentPrice - prevPrice) / currentPrice) * 100)}%`;
   }
+
   subtract(a,b){
     return (Number(a) - Number(b))
   }
+
   convertKoboTONaira(price) {
     return Number(price) / 100;
   }
@@ -24,6 +24,11 @@ class Utilities {
   getAmountRemainingPercent(remaining, total) {
     return `${100 - ((Number(remaining) / Number(total)) * 100).toFixed(0)}%`
   }
+
+  plusSeparator(word) {
+    return word.replace(/\+/g, " ");
+  }
+  
 
   // Arrow function to fix "this" context
   ProductStructure = ({
@@ -85,6 +90,10 @@ class Utilities {
       </Link>
     );
   };
+
+  replaceSpacesWithPercent20(string){
+    return string.replace(/ /g,"%20");
+  }
 }
 
 export const utility = new Utilities();

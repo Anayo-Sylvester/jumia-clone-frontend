@@ -43,7 +43,7 @@ export default function RightInfoSection(){
         <div className="hidden grid-rows-2 gap-y-4 h-full xl:grid">
                 <GenerateTopSection/>
                 <div className="">
-                    <img className="rounded-md object-cover h-full" src={`${process.env.PUBLIC_URL}/images/jumia-spin.gif`}/>
+                    <img className="rounded-md object-cover h-full" src={`${process.env.PUBLIC_URL}/images/jumia-spin.gif`} alt="spin gif"/>
                 </div>
         </div>
     )

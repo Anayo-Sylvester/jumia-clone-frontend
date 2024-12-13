@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { urls } from "../../App"; // Importing predefined URLs from the App component for use in deal links
+import { urls } from "../../../../App"; // Importing predefined URLs from the App component for use in deal links
 
 /**
  * DealsSection component displays a list of promotional deals with images and links.
@@ -17,22 +17,22 @@ export default function DealsSection() {
         {
             name: "TV Deals",
             image: `${process.env.PUBLIC_URL}/images/electronics.png`,
-            url: `${urls.category}/phones & tablets`
+            url: `${urls.products}?category=phones %26 tablets`
         },
         {
             name: "New Arrivals",
             image: `${process.env.PUBLIC_URL}/images/new-arrival.gif`,
-            url: `${urls.category}?sort=updatedAt` // URL for new arrivals sorted by latest updates
+            url: `${urls.products}?sort=updatedAt` // URL for new arrivals sorted by latest updates
         },
         {
             name: "Appliances Deals",
             image: `${process.env.PUBLIC_URL}/images/appliances.png`,
-            url: `${urls.category}/appliances` // URL to navigate to the appliances category
+            url: `${urls.products}?category=appliances` // URL to navigate to the appliances category
         },
         {
             name: "Phones & Tablets Deals",
             image: `${process.env.PUBLIC_URL}/images/phonesandtabletdeals.png`,
-            url: `${urls.category}/phones & tablets`
+            url: `${urls.products}?category=phones %26 tablets`
         }
     ];
 

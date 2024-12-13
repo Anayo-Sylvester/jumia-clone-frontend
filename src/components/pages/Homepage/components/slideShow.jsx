@@ -1,7 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 
 export default function SlideShow() {
-    // Array of images to display in the slideshow, each with an id, name, and url
     const imagesData = [
         { id: 0, name: "live-now", url: `${process.env.PUBLIC_URL}/images/slideshow/712x384-livenow-hero.gif` },
         { id: 1, name: "nine_712x384_FS", url: `${process.env.PUBLIC_URL}/images/slideshow/9Nine_712x384_FS.jpg` },
@@ -11,30 +10,24 @@ export default function SlideShow() {
         { id: 5, name: "uba", url: `${process.env.PUBLIC_URL}/images/slideshow/712x384-Uba.jpg` },
     ];
 
-    // State to track the current index of the image being displayed
     const [currentIndex, setCurrentIndex] = useState(0);
-    const frequency = 6000; // Interval duration (in milliseconds) for changing the image
+    const frequency = 6000;
+    const intervalIdRef = useRef(null);
 
-    // useRef to store the interval ID so it persists across re-renders without causing the interval to reset
-    let intervalIdRef = useRef(null);
+    // Memoize the changeCurrentIndex function
+    const changeCurrentIndex = useCallback((id = undefined) => {
+        id === undefined 
+            ? setCurrentIndex((prev) => (prev + 1) % imagesData.length)
+            : setCurrentIndex(id);
+    }, [imagesData.length]);
 
-    // useEffect to start the slideshow interval on component mount and clean up on unmount
     useEffect(() => {
-        // Set up the interval to update the slideshow image periodically
         intervalIdRef.current = setInterval(() => {
-            changeCurrentIndex(); // Move to the next image
+            changeCurrentIndex();
         }, frequency);
 
-        // Clean up the interval on component unmount to prevent memory leaks
         return () => clearInterval(intervalIdRef.current);
-    }, [imagesData.length, frequency]);
-
-    // Function to update the currentIndex. If an id is provided, set it to that id; otherwise, increment by 1.
-    function changeCurrentIndex(id = undefined) {
-        id === undefined 
-            ? setCurrentIndex((prev) => (prev + 1) % imagesData.length) // Loop back to 0 when reaching the end
-            : setCurrentIndex(id); // Set to specific index if provided (used by dots)
-    }
+    }, [changeCurrentIndex]);
 
     // GenerateDots component to render clickable dots for each image in the slideshow
     const GenerateDots = ({ onclick }) => {

@@ -1,54 +1,69 @@
-import React, { useEffect, useState } from 'react'; // Import React and necessary hooks
-import { Link, useNavigate } from 'react-router-dom'; // Import routing components
-import { urls } from '../../../../App'; // Import URL constants for navigation
+// Import necessary modules from React and React Router
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { urls } from '../../../../../App';
 
-const HeaderBottomRight = () => {
-    const navigate = useNavigate(); // React Router's navigate hook for programmatic navigation
+/**
+ * HeaderBottomRight Component
+ * 
+ * This component renders the right section of a header containing menu items such as "Account," "Help," and "Cart." 
+ * Each menu item may include dropdowns for additional options. The component supports dynamic navigation and dropdown toggling.
+ * 
+ * @param {boolean} isLoggedIn - Indicates if the user is logged in.
+ * @param {function} setIsLoggedIn - Function to update the logged-in state.
+ */
+const HeaderBottomRight = ({ isLoggedIn, setIsLoggedIn }) => {
+    const navigate = useNavigate(); // For programmatic navigation
 
-    // Define the primary menu items with respective submenus
+    // Define the initial menu items, including dropdowns and icons
     const initialMenuItems = [
         {
             id: 0,
             name: "Account",
             icon: `${process.env.PUBLIC_URL}/icons/user-icon.svg`,
             url: urls.account,
-            subMenu: renderAccountSubMenu(), // Render Account submenu
-            isDropdownOpen: false, // Tracks dropdown visibility
+            subMenu: renderAccountSubMenu(),
+            isDropdownOpen: false,
         },
         {
             id: 1,
             name: "Help",
             icon: `${process.env.PUBLIC_URL}/icons/help-icon.svg`,
             url: urls.help,
-            subMenu: renderHelpSubMenu(), // Render Help submenu
-            isDropdownOpen: false, // Tracks dropdown visibility
+            subMenu: renderHelpSubMenu(),
+            isDropdownOpen: false,
         },
         {
             id: 2,
             name: "Cart",
             icon: `${process.env.PUBLIC_URL}/icons/cart-icon.svg`,
             url: urls.cart,
-            subMenu: null, // Cart has no submenu
-        }
+            subMenu: null,
+        },
     ];
 
-    const [menuItems, setMenuItems] = useState(() => initialMenuItems); // State for menu items
+    // State to track menu items and their dropdown states
+    const [menuItems, setMenuItems] = useState(() => initialMenuItems);
 
-    // Closes all open dropdowns when clicking outside the menu
+    // Effect to close dropdowns when clicking outside the menu
     useEffect(() => {
-        document.body.addEventListener("click", closeAllDropdowns);
-        return () => document.body.removeEventListener("click", closeAllDropdowns); // Cleanup on unmount
+        const closeHandler = (e) => closeAllDropdowns();
+        document.body.addEventListener("click", closeHandler);
+        return () => document.body.removeEventListener("click", closeHandler);
     }, []);
 
-    // Render Account submenu
+    /**
+     * Renders the submenu for the "Account" menu item.
+     * 
+     * Includes options for logging in/out and navigation to account-related pages.
+     */
     function renderAccountSubMenu() {
         const accountOptions = [
             { name: "My Account", icon: `${process.env.PUBLIC_URL}/icons/user-icon.svg`, link: "" },
             { name: "Orders", icon: `${process.env.PUBLIC_URL}/icons/orders-icon.svg`, link: "" },
-            { name: "Saved Items", icon: `${process.env.PUBLIC_URL}/icons/empty-heart-icon.svg`, link: "" }
+            { name: "Saved Items", icon: `${process.env.PUBLIC_URL}/icons/empty-heart-icon.svg`, link: "" },
         ];
 
-        // Account submenu item structure
         const AccountSubMenuItem = ({ name, icon, link }) => (
             <li>
                 <Link to={link} className="flex p-2 items-center">
@@ -61,8 +76,12 @@ const HeaderBottomRight = () => {
         return (
             <ul className="absolute top-7 w-[150px] rounded-md shadow-md bg-white z-10">
                 <li className="grid place-items-center p-[12px] border-b-[1px] border-gray-300">
-                    <Link className="bg-orange hover:bg-orange-dark text-white text-[12px] py-1 px-10 rounded-md">
-                        SIGN IN
+                    <Link
+                        to={'/login'}
+                        className={`text-white text-[12px] py-1 ${isLoggedIn ? "px-9 bg-red-600 hover:bg-red-800" : "px-10 bg-orange hover:bg-orange-dark"} min-w-fit rounded-md`}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {isLoggedIn ? 'LOG OUT' : "SIGN IN"}
                     </Link>
                 </li>
                 {accountOptions.map((option) => (
@@ -72,7 +91,11 @@ const HeaderBottomRight = () => {
         );
     }
 
-    // Render Help submenu
+    /**
+     * Renders the submenu for the "Help" menu item.
+     * 
+     * Includes links to help-related resources and a live chat option.
+     */
     function renderHelpSubMenu() {
         const helpOptions = [
             { id: 0, name: "Help Center", link: "" },
@@ -80,7 +103,7 @@ const HeaderBottomRight = () => {
             { id: 2, name: "Payment options", link: "" },
             { id: 3, name: "Track an order", link: "" },
             { id: 4, name: "Cancel an order", link: "" },
-            { id: 5, name: "Returns & Refunds", link: "" }
+            { id: 5, name: "Returns & Refunds", link: "" },
         ];
 
         const HelpSubMenuItem = ({ name, link }) => (
@@ -89,7 +112,6 @@ const HeaderBottomRight = () => {
             </li>
         );
 
-        // Live Chat button for Help menu
         const LiveChatButton = () => (
             <li className="border-t-2 border-gray-200 border-solid py-[12px]">
                 <Link className="flex bg-orange hover:bg-orange-dark text-white text-[12px] py-3 px-4 rounded-md">
@@ -109,7 +131,10 @@ const HeaderBottomRight = () => {
         );
     }
 
-    // Toggle dropdown visibility for specific menu item
+    /**
+     * Toggles the dropdown visibility for a specific menu item.
+     * @param {number} id - The ID of the menu item to toggle.
+     */
     function toggleDropdown(id) {
         setMenuItems((currentItems) =>
             currentItems.map((item) =>
@@ -120,7 +145,10 @@ const HeaderBottomRight = () => {
         );
     }
 
-    // Close all dropdowns except for an optional specified ID
+    /**
+     * Closes all dropdowns, optionally excluding a specific menu item.
+     * @param {number} [exceptId] - The ID of the menu item to exclude from closing.
+     */
     function closeAllDropdowns(exceptId) {
         setMenuItems((currentItems) =>
             currentItems.map((item) =>
@@ -129,7 +157,9 @@ const HeaderBottomRight = () => {
         );
     }
 
-    // Render all main menu items, including dropdown functionality
+    /**
+     * Renders individual menu items, handling navigation and dropdown toggling.
+     */
     const MenuItem = ({ icon, url, name, subMenu, isDropdownOpen, toggleDropdown, closeAllDropdowns }) => (
         <div
             tabIndex={0}
@@ -147,7 +177,7 @@ const HeaderBottomRight = () => {
         >
             <div className={`label flex gap-1 cursor-pointer h-full items-center justify-around relative hover:filter-orange`}>
                 <img className="h-9 cursor-pointer invert sm:h-6 sm:invert-0" src={icon} alt={`${name} icon`} id={`${name}-icon`} />
-                <label className="flex cursor-pointer hidden sm:block" htmlFor={`${name}-icon`}>{name}</label>
+                <label className="flex cursor-pointer sm:block" htmlFor={`${name}-icon`}>{name}</label>
                 {subMenu && (
                     <img
                         className={`h-2 my-auto ${!isDropdownOpen && "rotate-180"}`}
@@ -165,7 +195,7 @@ const HeaderBottomRight = () => {
         </div>
     );
 
-    // Map menu items to MenuItem component
+    // Render all menu items dynamically
     const renderMenus = menuItems.map((menu) => (
         <MenuItem
             key={menu.id}
@@ -186,4 +216,4 @@ const HeaderBottomRight = () => {
     );
 };
 
-export default HeaderBottomRight; // Export main component
+export default HeaderBottomRight;
