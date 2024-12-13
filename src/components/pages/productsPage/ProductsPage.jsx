@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { apiBaseUrl, responsiveScreenLimits } from "../../../App";
 import { utility } from "../../../utils/utils";
 import Filter from "./components/FilterBar";
+import Notfound from "../Notfound";
 
 // Function to generate the API URL based on search parameters
 const generateApiUrl = (searchParams, validParamsQuery) => {
@@ -89,15 +90,18 @@ export default function ProductsPage() {
                 <p>Error loading products: {error.message}</p>
             ) : (
                 <>
-                    <Filter 
-                        minPrice={Number(fetchedData.minPrice) / 100} 
-                        maxPrice={Number(fetchedData.maxPrice) / 100}
-                    />
                     {!fetchedData.hits.length ? (
-                        <p>No items found</p>
+                        <Notfound message="No products found" />
                     ) : (
-                        <div className="grid grid-cols-2 gap-4 pt-2 px-2 place-items-center md:grid-cols-3 lg:grid-cols-4">
-                            {generateProducts(fetchedData.hits)}
+                        <>
+                            <Filter
+                                minPrice={Number(fetchedData.minPrice) / 100}
+                                maxPrice={Number(fetchedData.maxPrice) / 100}
+                            />
+                            <div className="grid grid-cols-2 gap-4 pt-2 px-2 place-items-center md:grid-cols-3 lg:grid-cols-4">
+                                {/* Render products */}
+                                {generateProducts(fetchedData.hits)}
+                            </div>
     
                             {/* Pagination controls */}
                             <div className="w-20 grid mx-auto col-span-2 grid-cols-3 place-items-center md:col-span-3 lg:col-span-4">
@@ -110,9 +114,7 @@ export default function ProductsPage() {
                                             ? "bg-orange active:bg-orange-dark hover:bg-orange-dark"
                                             : "bg-gray-300"
                                     } h-5 w-4 grid place-content-center text-white cursor-pointer`}
-                                    onClick={() => {
-                                        changePage('-');
-                                    }}
+                                    onClick={() => changePage('-')}
                                 >
                                     -
                                 </button>
@@ -129,14 +131,12 @@ export default function ProductsPage() {
                                             ? "bg-orange active:bg-orange-dark hover:bg-orange-dark"
                                             : "bg-gray-300"
                                     } h-5 w-4 grid place-content-center text-white cursor-pointer`}
-                                    onClick={() => {
-                                        changePage("+");
-                                    }}
+                                    onClick={() => changePage('+')}
                                 >
                                     +
                                 </button>
                             </div>
-                        </div>
+                        </>
                     )}
                 </>
             )}
