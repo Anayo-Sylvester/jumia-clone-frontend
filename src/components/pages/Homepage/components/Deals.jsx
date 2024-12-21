@@ -1,18 +1,22 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { urls } from "../../../../App"; // Importing predefined URLs from the App component for use in deal links
+import { urls } from "../../../../App";
+import PropTypes from 'prop-types';
 
 /**
  * DealsSection component displays a list of promotional deals with images and links.
- * Each deal includes a name, an image, and a URL for navigation.
+ * Uses memoization for performance optimization
+ * 
+ * @component
+ * @returns {JSX.Element} Grid of deal cards with images and links
  */
-export default function DealsSection() {
-    // Array of deals, each containing the deal name, image path, and navigation URL
-    const deals = [
+function DealsSection() {
+    // Memoize deals array to prevent recreation on re-renders
+    const deals = useMemo(() => [
         {
             name: "Up to 50% Off",
-            image: `${process.env.PUBLIC_URL}/images/livenow-300BY300.gif`, // Image for the deal
-            url: `${urls.products}?discount=50` // URL to navigate to the products category and gets 50% off products
+            image: `${process.env.PUBLIC_URL}/images/livenow-300BY300.gif`,
+            url: `${urls.products}?discount=50`
         },
         {
             name: "TV Deals",
@@ -22,43 +26,44 @@ export default function DealsSection() {
         {
             name: "New Arrivals",
             image: `${process.env.PUBLIC_URL}/images/new-arrival.gif`,
-            url: `${urls.products}?sort=updatedAt` // URL for new arrivals sorted by latest updates
+            url: `${urls.products}?sort=updatedAt`
         },
         {
             name: "Appliances Deals",
             image: `${process.env.PUBLIC_URL}/images/appliances.png`,
-            url: `${urls.products}?category=appliances` // URL to navigate to the appliances category
+            url: `${urls.products}?category=appliances`
         },
         {
             name: "Phones & Tablets Deals",
             image: `${process.env.PUBLIC_URL}/images/phonesandtabletdeals.png`,
             url: `${urls.products}?category=phones %26 tablets`
         }
-    ];
+    ], []);
 
-    /**
-     * DealsStructure component generates the structure for a single deal.
-     * @param {string} name - The name of the deal.
-     * @param {string} image - The image URL for the deal.
-     * @param {string} url - The navigation URL for the deal.
-     */
-    const DealsStructure = ({ name, image, url }) => (
-        <Link to={url} className="min-w-[140px] w-1/3 text-center text-sm hover:shadow-md hover:scale-105">
-            <img className="rounded-md" src={image} alt={name} /> {/* Deal image */}
-            <p className="my-2">{name}</p> {/* Deal name */}
-        </Link>
-    );
+    // Memoize deals grid rendering
+    const dealsGrid = useMemo(() => (
+        <div className=" bg-gray-100 grid grid-cols-5 gap-3">
+            {deals.map((deal, index) => (
+                <Link 
+                    key={index}
+                    to={deal.url}
+                    className="bg-white p-2 rounded-md hover:shadow-md transition-shadow"
+                >
+                    <img
+                        src={deal.image}
+                        alt={deal.name}
+                        className="w-full h-auto"
+                        loading="lazy"
+                    />
+                    <p className="text-center mt-2 text-sm">{deal.name}</p>
+                </Link>
+            ))}
+        </div>
+    ), [deals]);
 
-    // Generate JSX for all deals using the DealsStructure component
-    const generateDealHtml = deals.map(({ name, image, url }, index) => (
-        <DealsStructure key={index} name={name} image={image} url={url} />
-    ));
-
-    // Render the deals section with horizontal scrolling enabled
-    return (
-        <section 
-            className="flex bg-white overscroll-y-none overscroll-contain gap-2 p-2 my-3 overflow-x-auto deals">
-            {generateDealHtml}
-        </section>
-    );
+    return dealsGrid;
 }
+
+DealsSection.displayName = 'DealsSection';
+
+export default React.memo(DealsSection);

@@ -1,26 +1,22 @@
-/**
- * Renders a card component that displays a list of products fetched from an API.
- * The component uses the `useQuery` hook from `@tanstack/react-query` to fetch the product data.
- * The fetched data is then mapped to create individual product cards, which are displayed in a scrollable container.
- * The component also includes a header section with a link to the "See All" page.
- */
-import React from "react";
+import React, { useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { apiBaseUrl, urls } from "../../../../App";
 import { utility } from "../../../../utils/utils";
 import "../../../../App.css";
 
-// Async function to fetch data
-const fetchProducts = async () => {
-  const response = await fetch(`${apiBaseUrl}/products?sort=name`);
-  if (!response.ok) {
-    throw new Error("Failed to fetch products. Please try again later.");
-  }
-  return response.json();
-};
+
 
 export default function ProductsCard() {
+  // Async function to fetch data
+  const fetchProducts = useCallback(async () => {
+    const response = await fetch(`${apiBaseUrl}/products?sort=name`);
+    if (!response.ok) {
+      throw new Error("Failed to fetch products. Please try again later.");
+    }
+    return response.json();
+  }, []);
+
   // Fetch data with React Query
   const { data: fetchedData, isLoading, isError, error } = useQuery({
     queryKey: ["products"],
@@ -28,21 +24,33 @@ export default function ProductsCard() {
   });
 
   // Generate product cards from the fetched data
-  const generateProducts = fetchedData?.hits?.map(
-    ({ _id, name, image, currentPrice, prevPrice, initialQuantity, AmountOrdered }) => (
-      <utility.ProductStructure
-        key={_id}
-        id={_id}
-        discount={utility.calcDiscount(currentPrice, prevPrice)}
-        currentPrice={currentPrice}
-        prevPrice={prevPrice}
-        image={image}
-        name={name}
-        amountOrdered={AmountOrdered}
-        initialQuantity={initialQuantity}
-      />
-    )
-  ) || " ";
+  const generateProducts = useMemo(() => {
+    return (
+      fetchedData?.hits?.map(
+        ({
+          _id,
+          name,
+          image,
+          currentPrice,
+          prevPrice,
+          initialQuantity,
+          AmountOrdered,
+        }) => (
+          <utility.ProductStructure
+            key={_id}
+            id={_id}
+            discount={utility.calcDiscount(currentPrice, prevPrice)}
+            currentPrice={currentPrice}
+            prevPrice={prevPrice}
+            image={image}
+            name={name}
+            AmountOrdered={AmountOrdered}
+            initialQuantity={initialQuantity}
+          />
+        )
+      ) || " "
+    );
+  }, [fetchedData]);
 
   return (
     <div className="bg-white">

@@ -156,7 +156,10 @@ const manipulateURL = (key, value) => {
           value={discountValue}
           onChange={(value, index) => console.log(`onChange: ${JSON.stringify({ value, index })}`)}
           onAfterChange={(value, index) => handleSliderChange(value, index)} // Corrected this line
-          renderThumb={(props, state) => <div {...props}>{`${state.valueNow}%`}</div>}
+                  renderThumb={(props, state) => {
+                    const {key, ...restProps} = props
+                    return <div key={key} {...restProps}>{`${state.valueNow}%`}</div>
+                  }}
         />
 
       </div>

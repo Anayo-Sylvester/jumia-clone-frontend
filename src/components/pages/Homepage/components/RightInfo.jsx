@@ -1,17 +1,16 @@
-import React from "react";
+import React, { useMemo } from "react";
 
 /**
  * RightInfoSection Component
- * Displays information sections including call-to-order, sell on Jumia, and best deals, along with a loading/spin GIF.
+ * Displays information sections with optimized rendering
+ * 
+ * @component
+ * @returns {JSX.Element} Right information panel
  */
 export default function RightInfoSection() {
-    /**
-     * GenerateTopSection component
-     * Generates a list of top sections with icons, titles, and optional messages.
-     */
     const GenerateTopSection = () => {
-        // Data for the top sections
-        const topSectionData = [
+        // Memoize section data
+        const topSectionData = useMemo(() => [
             {
                 icon: `${process.env.PUBLIC_URL}/icons/phone-icon-1.png`,
                 title: 'CALL TO ORDER',
@@ -25,23 +24,34 @@ export default function RightInfoSection() {
                 icon: `${process.env.PUBLIC_URL}/icons/return-icon.png`,
                 title: 'Best Deals'
             }
-        ];
+        ], []);
 
-        // Component for individual section structure
-        const TopSectionStructure = ({ icon, title, message }) => (
+        // Memoize section structure component
+        const TopSectionStructure = useMemo(() => ({ icon, title, message }) => (
             <li className="flex items-center">
-                <img className="h-8 mr-2" src={icon} alt={title} />
+                <img 
+                    className="h-8 mr-2" 
+                    src={icon} 
+                    alt={title} 
+                    loading="lazy"
+                />
                 <div className="text flex flex-col">
                     <span className="text-[15px] font-semibold">{title}</span>
                     {message && <span className="text-xs truncate w-5/6 overflow-hidden">{message}</span>}
                 </div>
             </li>
-        );
+        ), []);
 
-        // Mapping through topSectionData to create the list items
-        const TopSectionHTML = topSectionData.map((data, index) => (
-            <TopSectionStructure key={index} icon={data.icon} title={data.title} message={data.message} />
-        ));
+        // Memoize section HTML
+        const TopSectionHTML = useMemo(() => 
+            topSectionData.map((data, index) => (
+                <TopSectionStructure 
+                    key={index} 
+                    icon={data.icon} 
+                    title={data.title} 
+                    message={data.message} 
+                />
+            )), [topSectionData]);
 
         return (
             <ul className="p-4 flex flex-col justify-between bg-white rounded-md">
@@ -61,3 +71,5 @@ export default function RightInfoSection() {
         </div>
     );
 }
+
+RightInfoSection.displayName = 'RightInfoSection';

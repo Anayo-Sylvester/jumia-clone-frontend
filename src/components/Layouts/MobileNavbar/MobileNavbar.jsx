@@ -1,14 +1,22 @@
-import React, { useRef } from "react";
+import React, { useRef, useMemo, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { urls } from "../../../App"; // Import URL constants
 
-// Component for the mobile navigation bar
+/**
+ * MobileNavbar Component
+ * Renders bottom navigation bar for mobile devices
+ * 
+ * @component
+ * @param {Object} props
+ * @param {boolean} props.isLoggedIn - User authentication status
+ */
 export default function MobileNavbar({ isLoggedIn }) {
     const location = useLocation(); // Get current URL path
     const navigate = useNavigate(); // React Router hook for navigation
+    const clickedPathRef = useRef(null); // Track last clicked path
 
-    // Define navigation items
-    const navItems = [
+    // Memoize navigation items to prevent recreation on render
+    const navItems = useMemo(() => [
         { id: 1, label: "Home", icon: `${process.env.PUBLIC_URL}/icons/home-icon.svg`, path: urls.home },
         { id: 2, label: "Categories", icon: `${process.env.PUBLIC_URL}/icons/category-icon.svg`, path: urls.category },
         { id: 3, label: "Orders", icon: `${process.env.PUBLIC_URL}/icons/feed-icon.svg`, path: urls.orders },
@@ -19,34 +27,33 @@ export default function MobileNavbar({ isLoggedIn }) {
             path: isLoggedIn ? urls.account : urls.login 
         },
         { id: 5, label: "Help", icon: `${process.env.PUBLIC_URL}/icons/help-icon.svg`, path: urls.help }
-    ];
+    ], [isLoggedIn]);
 
-    const clickedPathRef = useRef(null); // Track last clicked path
-
-    // Function to handle navigation and set clicked path for animation
-    const handleNavigation = (path) => {
+    // Memoize navigation handler
+    const handleNavigation = useCallback((path) => {
         navigate(path);
         clickedPathRef.current = path;
-    };
+    }, [navigate]);
 
-    // Component for each navigation button
-    const NavButton = ({ icon, label, path }) => {
-        const isActive = location.pathname === path; // Check if button is active
-        const showClickAnimation = path === clickedPathRef.current; // Check if button should animate
+    // Memoize NavButton component
+    const NavButton = useMemo(() => {
+        return ({ icon, label, path }) => {
+            const isActive = location.pathname === path; // Check if button is active
+            const showClickAnimation = path === clickedPathRef.current; // Check if button should animate
 
-        return (
-            <button
-                className={`grid w-1/4 relative place-items-center 
-                    ${isActive ? 'filter-orange' : ''} 
-                    ${showClickAnimation ? 'animate-click' : ''}`}
-                onClick={() => handleNavigation(path)}
-                ref={clickedPathRef}
-            >
-                <img className="h-5" src={icon} alt={`${label} icon`} />
-                <h2>{label}</h2>
-            </button>
-        );
-    };
+            return (
+                <button
+                    className={`grid w-1/4 relative place-items-center 
+                        ${isActive ? 'filter-orange' : ''} 
+                        ${showClickAnimation ? 'animate-click' : ''}`}
+                    onClick={() => handleNavigation(path)}
+                >
+                    <img loading="lazy" className="h-5" src={icon} alt={`${label} icon`} />
+                    <h2>{label}</h2>
+                </button>
+            );
+        };
+    }, [location.pathname, handleNavigation]);
 
     // Generate navigation buttons from navItems
     const navButtons = navItems.map((item) => (
@@ -65,3 +72,5 @@ export default function MobileNavbar({ isLoggedIn }) {
         </>
     );
 }
+
+MobileNavbar.displayName = 'MobileNavbar';

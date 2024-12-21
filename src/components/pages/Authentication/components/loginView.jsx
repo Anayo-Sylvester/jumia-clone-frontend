@@ -1,54 +1,74 @@
-import React, { useState } from 'react'; // Importing React and the useState hook for state management
+import React, { lazy, Suspense, useContext, useState, useMemo, useCallback } from 'react';
+import { AuthContext } from '../../../../contexts/AuthContext';
+import PropTypes from 'prop-types';
+import LoadingFallback from '../../../Layouts/LoadingFallback';
 
-import Info from './Info'; // Component to display login-related information
-import Form from './Form'; // Component to handle login and registration forms
-import Footer from './Footer'; // Component for footer layout
-import Toast from '../../../Layouts/Toast'; // Component for displaying success or error messages
+// Lazy load components
+const Info = lazy(() => import('./Info'));
+const Form = lazy(() => import('./Form'));
+const Footer = lazy(() => import('./Footer'));
+const Toast = lazy(() => import('../../../Layouts/Toast/Toast'));
 
 /**
  * LoginView Component
- * Handles the layout and functionality for the login and registration views.
- * @param {Object} props - Component props
- * @param {string} props.action - Determines the action (e.g., login or register)
- * @param {Function} props.setIsLoggedIn - Function to update the logged-in state
+ * Handles user authentication views (login/register)
+ * Uses lazy loading for optimal performance
+ * 
+ * @component
+ * @param {Object} props
+ * @param {string} props.action - Current action (login/register)
  */
-const LoginView = ({ action, setIsLoggedIn }) => {
-  // State for managing the visibility of the Toast component
+const LoginView = ({ action }) => {
+  const {setIsLoggedInState} = useContext(AuthContext);
   const [isToastVisible, setIsToastVisible] = useState(false);
-
-  // State for storing Toast data (success status and message)
   const [toastData, setToastData] = useState({
-    success: false, // Indicates if the toast represents a success message
-    message: '', // Message to display in the toast
+    success: false,
+    message: '',
   });
+
+  // Memoize toast state updater
+  const handleToastUpdate = useCallback((success, message) => {
+    setToastData({ success, message });
+    setIsToastVisible(true);
+  }, []);
+
+  // Memoize main content
+  const mainContent = useMemo(() => (
+    <div className="mb-3">
+      <Suspense fallback={<LoadingFallback />}>
+        <Info />
+        <Form
+          setIsLoggedIn={setIsLoggedInState}
+          setIsToastVisible={setIsToastVisible}
+          setToastData={setToastData}
+          param={action}
+        />
+      </Suspense>
+    </div>
+  ), [action, setIsLoggedInState]);
 
   return (
     <div className="h-screen text-center">
       <div className="flex flex-col justify-between pt-6 pb-8 mx-auto max-w-[391px] h-screen">
-        {/* Info and Form components */}
-        <div className="mb-3">
-          <Info />
-          <Form
-            setIsLoggedIn={setIsLoggedIn}
+        {mainContent}
+        <Suspense fallback={<LoadingFallback />}>
+          <Footer />
+          <Toast
+            success={toastData.success}
+            message={toastData.message}
+            isToastVisible={isToastVisible}
             setIsToastVisible={setIsToastVisible}
-            setToastData={setToastData}
-            param={action}
           />
-        </div>
-
-        {/* Footer component */}
-        <Footer />
-
-        {/* Toast component for displaying feedback messages */}
-        <Toast
-          success={toastData.success}
-          message={toastData.message}
-          isToastVisible={isToastVisible}
-          setIsToastVisible={setIsToastVisible}
-        />
+        </Suspense>
       </div>
     </div>
   );
 };
 
-export default LoginView; // Exporting the LoginView component
+LoginView.propTypes = {
+  action: PropTypes.string.isRequired,
+};
+
+LoginView.displayName = 'LoginView';
+
+export default React.memo(LoginView);

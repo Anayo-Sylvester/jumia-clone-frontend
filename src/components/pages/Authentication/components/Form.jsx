@@ -1,7 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback, useMemo } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { apiBaseUrl } from '../../../../App';
+import useAuth from '../../../../hooks/UserAuth';
 
 /**
  * InputField Component - Reusable form input field with floating label
@@ -17,8 +18,9 @@ import { apiBaseUrl } from '../../../../App';
  * @param {Function} props.onBlur - Blur event handler
  * @param {boolean} props.disabled - Input disabled state
  * @param {Function} props.validate - Validation function
+ * @returns {JSX.Element} Rendered input field with floating label
  */
-const InputField = ({
+const InputField = React.memo(({
   type,
   name,
   placeholder,
@@ -30,35 +32,46 @@ const InputField = ({
   onBlur,
   disabled,
   validate,
-}) => (
-  <div className="relative input-container">
-    {/* Floating label implementation */}
-    <span
-      ref={spanRef}
-      onClick={() => inputRef.current.focus()}
-      className={`placeholder absolute left-4 ${value ? 'top-0 text-xs' : 'top-1/2 text-base'} ${disabled && 'cursor-not-allowed'} px-1 bg-white transform -translate-y-1/2 text-gray-600 transition-all`}
-    >
-      {placeholder}
-    </span>
-    <input
-      type={type}
-      name={name}
-      ref={inputRef}
-      value={value}
-      onInput={onInput}
-      onFocus={onFocus}
-      onBlur={onBlur}
-      title = {name==='confirm-password' && disabled ? ' Enter your password first' : ''}
-      className={`input border-[1px] ${disabled && 'cursor-not-allowed'} border-gray-400 w-full p-4 rounded-md focus:border-orange focus:outline-none`}
-      disabled={disabled}
-    />
-    {/* Validation error message */}
-    {value && validate && !validate(value) && (
-      <p className="text-red-500 text-sm mt-1">Invalid {name}</p>
-    )}
-    
-  </div>
-);
+}) => {
+  // Memoize computed class names
+  const spanClassName = useMemo(() => `
+    placeholder absolute left-4 
+    ${value ? 'top-0 text-xs' : 'top-1/2 text-base'} 
+    ${disabled && 'cursor-not-allowed'} 
+    px-1 bg-white transform -translate-y-1/2 text-gray-600 transition-all
+  `, [value, disabled]);
+
+  // Memoize click handler
+  const handleSpanClick = useCallback(() => {
+    inputRef.current?.focus();
+  }, [inputRef]);
+
+  return (
+    <div className="relative input-container">
+      <span
+        ref={spanRef}
+        onClick={handleSpanClick}
+        className={spanClassName}
+      >
+        {placeholder}
+      </span>
+      <input
+        ref={inputRef}
+        type={type}
+        name={name}
+        value={value}
+        onInput={onInput}
+        onFocus={onFocus}
+        onBlur={onBlur}
+        disabled={disabled}
+        onChange={(e) => validate && validate(e.target.value)}
+        className="w-full border border-gray-300 rounded-md py-2 px-4 focus:outline-none focus:border-orange"
+      />
+    </div>
+  );
+});
+
+InputField.displayName = 'InputField';
 
 /**
  * Form Component - Handles user authentication (login/register)
@@ -66,12 +79,13 @@ const InputField = ({
  * @param {string} props.param - Authentication type ('login' or 'register')
  * @param {Function} props.setIsLoggedIn - Function to update login state
  */
-const Form = ({ param, setIsLoggedIn,setIsToastVisible,setToastData}) => {
+
+const Form = ({ param, setIsLoggedIn, setIsToastVisible, setToastData }) => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loginData, setLoginData] = useState({});
+  const { handleLogIn } = useAuth(); // Destructure handleLogIn from useAuth
 
-  // References for form input elements
   const refs = {
     email: { input: useRef(null), span: useRef(null) },
     password: { input: useRef(null), span: useRef(null) },
@@ -79,8 +93,6 @@ const Form = ({ param, setIsLoggedIn,setIsToastVisible,setToastData}) => {
     name: { input: useRef(null), span: useRef(null) },
   };
 
-  console.log('form')
-  // Handlers for floating label animation
   const handleInputFocus = (spanRef) => {
     if (spanRef.current) {
       spanRef.current.style.top = '0';
@@ -95,13 +107,11 @@ const Form = ({ param, setIsLoggedIn,setIsToastVisible,setToastData}) => {
     }
   };
 
-  // Handle input changes
   const editInputValue = (e) => {
     const { name, value } = e.target;
     setLoginData((prev) => ({ ...prev, [name]: value.trim() }));
   };
 
-  // API mutation setup using react-query
   const mutation = useMutation({
     mutationFn: async (data) => {
       const response = await fetch(`${apiBaseUrl}/auth/${param}`, {
@@ -110,33 +120,32 @@ const Form = ({ param, setIsLoggedIn,setIsToastVisible,setToastData}) => {
         body: JSON.stringify(data),
       });
       const responseData = await response.json();
-      console.log({response,responseData});
       return { data: responseData, status: response.status };
     },
-    onSuccess: (response) => {
-      // Handle successful authentication
+    onSuccess: async (response) => {
       if (response.status === 200 && response.data?.token) {
-        localStorage.setItem('jumiaCloneToken', response.data.token);
-        setIsLoggedIn(true);
-        navigate('/');
-        // setToastData(prevData => ({
-        //   ...prevData,
-        //   message: 'Logged in successfully',
-        //   success: !prevData.success
-        // }));
-        // setIsToastVisible(true);
+        try {
+          const loginSuccess = await handleLogIn(response);
+          if (loginSuccess) {
+            navigate('/') // Only navigate if login was successful 
+            window.location.reload();
+          } else {
+            console.error('Error: Failed to save token or username in localStorage.');
+          }
+        } catch (error) {
+          console.error('Error during login process:', error);
+        }
       } else if (response.status === 201) {
         navigate('/login');
         setIsToastVisible(true);
-        setToastData(prevData => ({
+        setToastData((prevData) => ({
           ...prevData,
           message: 'Registered successfully, please login',
           success: true,
         }));
       } else {
-        console.log(response);
         setLoginData((prev) => ({ ...prev, password: '', confirmPassword: '' }));
-        setToastData(prevData => ({
+        setToastData((prevData) => ({
           ...prevData,
           message: response.data.msg,
           success: false,
@@ -144,14 +153,19 @@ const Form = ({ param, setIsLoggedIn,setIsToastVisible,setToastData}) => {
         setIsToastVisible(true);
       }
       setIsSubmitting(false);
-    },
-    onError: () => {
+    },    
+    onError: (error) => {
+      setIsToastVisible(true);
+      setToastData((prevData) => ({
+        ...prevData,
+        message: error.message,
+        success: false,
+      }));
       setIsSubmitting(false);
       setLoginData((prev) => ({ ...prev, password: '', confirmPassword: '' }));
     },
   });
 
-  // Form submission handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -162,22 +176,12 @@ const Form = ({ param, setIsLoggedIn,setIsToastVisible,setToastData}) => {
     }
   };
 
-  // Validation functions
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
+  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validatePassword = (password) =>
+    /^(?=.*[A-Za-z])(?=.*\d)(?=.*[#?!@$%^&*-])[A-Za-z\d#?!@$%^&*-]{8,}$/.test(password);
 
-  const validatePassword = (password) => {
-    // Password must contain at least 8 characters, one letter, one number, and one special character
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[#?!@$%^&*-])[A-Za-z\d#?!@$%^&*-]{8,}$/;
-    return passwordRegex.test(password);
-  };
-
-  // Form validation
-  const isFormValid =  () => {
+  const isFormValid = () => {
     if (!loginData.email || !validateEmail(loginData.email) || !loginData.password) return false;
-    console.log({firstCheck: !loginData.email || !validateEmail(loginData.email) || !loginData.password});
     if (param === 'register') {
       return (
         loginData.username &&
@@ -187,7 +191,6 @@ const Form = ({ param, setIsLoggedIn,setIsToastVisible,setToastData}) => {
     }
     return true;
   };
-  
 
   return (
     <form className="mt-5 flex flex-col gap-y-8" onSubmit={handleSubmit}>
@@ -247,41 +250,13 @@ const Form = ({ param, setIsLoggedIn,setIsToastVisible,setToastData}) => {
       <button
         type="submit"
         disabled={!isFormValid() || isSubmitting}
-        onClick={(e)=>handleSubmit(e)}
         className={`w-full p-4 rounded-md shadow-md text-white font-semibold ${
           isFormValid() && !isSubmitting ? 'bg-orange' : 'bg-gray-400 cursor-not-allowed'
         }`}
       >
         {isSubmitting ? 'Processing...' : param === 'login' ? 'Login' : 'Register'}
       </button>
-      <p className="text-sm">
-        {param === 'login' ? (
-          <>
-            New to Jumia?{' '}
-            <a href="/register" className="text-orange underline">
-              Create an account
-            </a>
-          </>
-        ) : (
-          <>
-            Already have an account?{' '}
-            <a href="/login" className="text-orange underline">
-              Login
-            </a>
-          </>
-        )}
-      </p>
-      <p className="text-sm">
-        By continuing you agree to Jumia's{' '}
-        <a
-          href="https://my.jumia.com.ng/interaction/_VEatLsEYBXDzVW4b1prF/en-ng/terms-and-conditions"
-          target="_blank"
-          className="text-orange underline"
-          rel="noopener noreferrer"
-        >
-          Terms and Conditions
-        </a>
-      </p>
+      {/* Footer Text */}
     </form>
   );
 };

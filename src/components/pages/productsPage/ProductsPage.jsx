@@ -1,7 +1,7 @@
 import React from "react";
 import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { apiBaseUrl, responsiveScreenLimits } from "../../../App";
+import { apiBaseUrl} from "../../../App";
 import { utility } from "../../../utils/utils";
 import Filter from "./components/FilterBar";
 import Notfound from "../Notfound";
@@ -73,7 +73,7 @@ export default function ProductsPage() {
                     prevPrice={prevPrice}
                     image={image}
                     name={name}
-                    amountOrdered={AmountOrdered}
+                    AmountOrdered={AmountOrdered}
                     initialQuantity={initialQuantity}
                 />
             );
@@ -84,7 +84,7 @@ export default function ProductsPage() {
     let nbPages = fetchedData?.nbPages || 1;
 
     return (
-        <div className={responsiveScreenLimits}>
+        <div>
             {isLoading ? (
                 <LoadingFallback />
             ) : error ? (

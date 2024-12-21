@@ -1,29 +1,42 @@
-import React from "react";
-import SlideShow from "./slideShow"; // Component for displaying the main slideshow
-import Categories from "../../Categories"; // Component for displaying category links or menu
-import RightInfoSection from "./RightInfo"; // Component for additional information on the right
+import React, { lazy, Suspense, useMemo } from "react";
+import LoadingFallback from "../../../Layouts/LoadingFallback";
+
+// Lazy load components
+const SlideShow = lazy(() => import("./slideShow"));
+const Categories = lazy(() => import("../../Categories"));
+const RightInfoSection = lazy(() => import("./RightInfo"));
 
 /**
  * Hero Component
- * Renders the main hero section of the page with a slideshow, categories, and a right information section.
+ * Renders the main hero section of the page with a slideshow, categories, and right information
+ * Uses lazy loading and memoization for optimal performance
+ * 
+ * @component
+ * @returns {JSX.Element} Hero section with slideshow, categories and info
  */
 export default function Hero() {
-    return (
+    // Memoize hero content
+    const heroContent = useMemo(() => (
         <section className="bg-black">
-            {/* Main container for the hero section */}
             <div className="grid h-full mx-auto md:gap-3 p-3 md:grid-cols-[200px,minmax(20px,720px),1fr]">
-                
-                {/* Categories Section - Visible only on medium screens and above */}
                 <div className="hidden md:block">
-                    <Categories />
+                    <Suspense fallback={<LoadingFallback />}>
+                        <Categories />
+                    </Suspense>
                 </div>
                 
-                {/* Slideshow Section */}
-                <SlideShow />
+                <Suspense fallback={<LoadingFallback />}>
+                    <SlideShow />
+                </Suspense>
                 
-                {/* Right Information Section */}
-                <RightInfoSection />
+                <Suspense fallback={<LoadingFallback />}>
+                    <RightInfoSection />
+                </Suspense>
             </div>
         </section>
-    );
+    ), []);
+
+    return heroContent;
 }
+
+Hero.displayName = 'Hero';

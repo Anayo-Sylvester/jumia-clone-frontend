@@ -37,12 +37,13 @@ class Utilities {
     prevPrice,
     image,
     name,
-    amountOrdered,
+    AmountOrdered,
     initialQuantity,
     id,
   }) => {
-    const amountRemaining = this.subtract(initialQuantity,amountOrdered)// Calculates remaining stock
+    const amountRemaining = this.subtract(initialQuantity,AmountOrdered)// Calculates remaining stock
     const stop = this.getAmountRemainingPercent(amountRemaining, initialQuantity); // Calculates remaining stock percentage
+
     return (
       <Link
         to={`${urls.product}/${id}`}

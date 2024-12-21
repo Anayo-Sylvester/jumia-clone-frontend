@@ -1,11 +1,13 @@
 import React, { Route, Routes } from "react-router";  // Importing necessary modules
 import HomePage from "../components/pages/Homepage/HomePage";  // Importing the HomePage component
 import Notfound from "../components/pages/Notfound";  // Importing the Notfound component for handling unmatched routes
-import Cart from "../components/pages/Cart";  // Importing the Cart component
-import ProductPage from "../components/pages/ProductPage";  // Importing the ProductPage component
+import Cart from "../components/pages/Cart/Cart";  // Importing the Cart component
+import ProductPage from "../components/pages/productPage/ProductPage";  // Importing the ProductPage component
 import ProductsPage from "../components/pages/productsPage/ProductsPage";  // Importing the ProductsPage component
 import Categories from "../components/pages/Categories";  // Importing the Categories component
 import { AuthenticationPage } from "../components/pages/Authentication/Authentication";  // Importing AuthenticationPage component
+import { useContext } from "react";
+import { AuthContext, AuthContextProvider } from "../contexts/AuthContext";
 
 /**
  * RoutesEl Component
@@ -14,7 +16,8 @@ import { AuthenticationPage } from "../components/pages/Authentication/Authentic
  * @param {boolean} isLoggedIn - Indicates if the user is logged in.
  * @param {Function} setIsLoggedIn - Function to update the login state.
  */
-const RoutesEl = ({ isLoggedIn, setIsLoggedIn }) => {
+const RoutesEl = () => {
+    const { isLoggedIn, setIsLoggedIn } = useContext(AuthContext);
     // Array of route definitions
     const routes = [
         {
@@ -27,7 +30,7 @@ const RoutesEl = ({ isLoggedIn, setIsLoggedIn }) => {
         },
         {
             path: `${process.env.PUBLIC_URL}/cart`,  // Cart page route
-            element: <Cart />
+            element: <Cart/>
         },
         {
             path: `${process.env.PUBLIC_URL}/products`,  // Products page route
@@ -35,7 +38,7 @@ const RoutesEl = ({ isLoggedIn, setIsLoggedIn }) => {
         },
         {
             path: `${process.env.PUBLIC_URL}/product/:id`,  // Product page with dynamic ID
-            element: <ProductPage {...{ isLoggedIn }} />
+            element: <ProductPage/>
         },
         {
             path: `${process.env.PUBLIC_URL}/categories`,  // Categories page route
@@ -43,11 +46,11 @@ const RoutesEl = ({ isLoggedIn, setIsLoggedIn }) => {
         },
         {
             path: `${process.env.PUBLIC_URL}/login`,  // Login page route
-            element: <AuthenticationPage {...{ isLoggedIn, setIsLoggedIn }} />
+            element: <AuthenticationPage/>
         },
         {
             path: `${process.env.PUBLIC_URL}/register`,  // Register page route
-            element: <AuthenticationPage {...{ isLoggedIn, setIsLoggedIn }} />
+            element: <AuthenticationPage/>
         }        
     ];
 
@@ -57,9 +60,11 @@ const RoutesEl = ({ isLoggedIn, setIsLoggedIn }) => {
     ));
 
     return (
-        <Routes>
-            {generateRouteElement}
-        </Routes>
+        <AuthContextProvider>
+            <Routes>
+                {generateRouteElement}
+            </Routes>
+        </AuthContextProvider>
     );
 }
 

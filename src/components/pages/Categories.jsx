@@ -1,14 +1,6 @@
-/**
- * Renders a list of product categories fetched from the API.
- * 
- * The component uses the `useQuery` hook from `@tanstack/react-query` to fetch the categories data.
- * It displays a loading message while the data is being fetched, an error message if there's an issue,
- * and the list of categories if the data is successfully fetched.
- * 
- * Each category is rendered as a list item with a link to the products page filtered by that category.
- */
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useMemo } from 'react';
+import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import { useQuery } from "@tanstack/react-query";
 import { apiBaseUrl, urls } from "../../App";
 import { utility } from "../../utils/utils";
@@ -23,50 +15,65 @@ const fetchCategories = async () => {
     return response.json();
 };
 
+/**
+ * Categories Component
+ * Displays a list of product categories with links
+ * 
+ * @component
+ * @returns {JSX.Element} Categories list
+ */
 export default function Categories() {
-  // Use React Query to fetch categories data
-    const { data: fetchedCategoriesData, isLoading,isError, error } = useQuery({
-    queryKey: ["categories"], // Unique key for the query
-    queryFn: fetchCategories,
-});
+    // Use React Query to fetch categories data
+    const { data: fetchedCategoriesData, isLoading, isError, error } = useQuery({
+        queryKey: ["categories"], // Unique key for the query
+        queryFn: fetchCategories,
+    });
 
-  // Generates the structure for each category
-const CategoryStructure = ({ categoryName }) => (
-    <li className="flex items-center cursor-pointer p-2 text-[12px] hover:text-orange">
-        <Link
-            to={`${urls.products}?category=${utility.replaceSpacesWithPercent20(
-                encodeURIComponent(categoryName)
-            )}`}
-        >
-            {categoryName}
-        </Link>
-    </li>
-);
+    // Memoize CategoryStructure component
+    const CategoryStructure = useMemo(() => {
+        const Component = ({ categoryName }) => (
+            <li className="flex items-center cursor-pointer p-2 text-[12px] hover:text-orange">
+                <Link
+                    to={`${urls.products}?category=${utility.replaceSpacesWithPercent20(
+                        encodeURIComponent(categoryName)
+                    )}`}
+                >
+                    {categoryName}
+                </Link>
+            </li>
+        );
+        Component.propTypes = {
+            categoryName: PropTypes.string.isRequired
+        };
+        return Component;
+    }, []);
 
-// Render categories based on the query state
-const renderCategories = () => {
-    if (isLoading) {
-        return <LoadingFallback/>;
-    }
+    // Memoize categories rendering function
+    const renderCategories = useMemo(() => {
+        if (isLoading) {
+            return <LoadingFallback />;
+        }
 
-    if (isError) {
-        return <li>{error.message} Please try again.</li>;
-    }
+        if (isError) {
+            return <li>{error.message} Please try again.</li>;
+        }
 
-    if (fetchedCategoriesData && fetchedCategoriesData.hits.length > 0) {
-        return fetchedCategoriesData.hits.map((category, index) => (
-            <CategoryStructure key={index} categoryName={category} />
-        ));
-    }
+        if (fetchedCategoriesData?.hits?.length > 0) {
+            return fetchedCategoriesData.hits.map((category, index) => (
+                <CategoryStructure key={index} categoryName={category} />
+            ));
+        }
 
-    return <li>No categories found.</li>;
-};
+        return <li>No categories found.</li>;
+    }, [isLoading, isError, error, fetchedCategoriesData, CategoryStructure]);
 
-return (
-    <section className="bg-white rounded-sm relative">
-        <ul className="h-full flex flex-col rounded-[50px] justify-between">
-        {renderCategories()}
-        </ul>
-    </section>
-);
+    return (
+        <section className="bg-white rounded-sm relative">
+            <ul className="h-full flex flex-col rounded-[50px] justify-between">
+                {renderCategories}
+            </ul>
+        </section>
+    );
 }
+
+Categories.displayName = 'Categories';

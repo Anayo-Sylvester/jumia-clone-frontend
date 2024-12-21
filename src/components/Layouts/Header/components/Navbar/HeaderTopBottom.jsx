@@ -1,93 +1,117 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { lazy, useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import HeaderBtmRight from "./HeaderTopBottomRight"; // Import right section of header
-import { urls } from "../../../../../App"; // Import URL constants
+import { urls } from "../../../../../App";
+import PropTypes from 'prop-types';
+
+const HeaderBtmRight = lazy(() => import("./HeaderTopBottomRight"));
 
 /**
- * Main component for the bottom section of the header.
- * Includes the logo, search bar, and right-side menu.
- * @returns {JSX.Element} The rendered bottom header section.
+ * HeaderBottomSection Component
+ * Manages the bottom section of the header including search functionality
+ *
+ * @component
+ * @example
+ * return (
+ *   <HeaderBottomSection />
+ * )
  */
-export default function HeaderBottomSection({ isLoggedIn }) {
+function HeaderBottomSection() {
     const navigate = useNavigate();
-    const [searchValue, setSearchValue] = useState(''); // Tracks the search input value
-    const searchRef = useRef(); // Ref for the search input element
-    
-    /**
-     * Focuses the search input when `searchValue` changes.
-     */
+    const [searchValue, setSearchValue] = useState('');
+    const searchRef = useRef();
+
+    // Memoize container styles
+    const containerStyles = useMemo(() => ({
+        outer: "header-bottom horizontal-center py-3 px-4 bg-black sm:bg-white",
+        inner: "header-bottom-container flex gap-5 w-full lg:max-w-[950px] xl:max-w-[1184px] sm:justify-between"
+    }), []);
+
     useEffect(() => {
-        searchValue && searchRef.current?.focus(); // Fixes the issue of the input losing focus on re-render
+        searchValue && searchRef.current?.focus();
     }, [searchValue]);
 
     /**
-     * Renders the logo section of the header.
-     * Navigates to the home page when the logo is clicked.
-     * @returns {JSX.Element} The logo section of the header.
+     * Handles search product navigation
+     * Memoized to prevent unnecessary re-renders
      */
-    const LogoSection = () => {
+    const searchProduct = useCallback(() => {
+        navigate(urls.products + `?search=${searchValue}`);
+        setSearchValue("");
+        window.location.reload();
+    }, [navigate, searchValue]);
+
+    /**
+     * Handles search input changes
+     * Memoized to prevent unnecessary re-renders
+     */
+    const handleSearchChange = useCallback((e) => {
+        setSearchValue(e.target.value);
+        searchRef.current?.focus();
+    }, []);
+
+    /**
+     * Handles keyboard events for search
+     * Memoized to prevent unnecessary re-renders
+     */
+    const handleKeyDown = useCallback((e) => {
+        e.key === "Enter" && searchProduct();
+    }, [searchProduct]);
+
+    const LogoSection = useMemo(() => {
         return (
             <div 
                 className="img-container grid place-content-center min-w-[133.56px] cursor-pointer w-[10%] hidden sm:block" 
                 onClick={() => navigate(urls.home)}
             >
-                <img className="my-auto" src="/icons/jumia-logo.png" alt="jumia logo" tabIndex={0} />
+                <img 
+                    loading="lazy" 
+                    className="my-auto" 
+                    src="/icons/jumia-logo.png" 
+                    alt="jumia logo" 
+                    tabIndex={0} 
+                />
             </div>
         );
-    };
+    }, [navigate]);
 
-    /**
-     * Navigates to the products page with the search query.
-     * Clears the search input after navigating.
-     */
-    const searchProduct = () => {
-        navigate(urls.products + `?search=${searchValue}`);
-        setSearchValue(""); // Clears the search value from the input
-        window.location.reload();// this reloads the entire website after url is changed
-    };
-
-    /**
-     * Renders the search bar section of the header.
-     * Includes the search input field and button for submitting the search.
-     * @returns {JSX.Element} The search bar section.
-     */
-    const SearchBar = () => {
+    const SearchBar = useMemo(() => {
         return (
             <div className="header-bottom-search-container relative flex w-[90%] sm:w-[54%]">
-                <img className="absolute bottom-0 top-0 my-auto ml-2 h-1/2 object-cover" src="/icons/search.svg" alt="search icon" />
+                <img 
+                    className="absolute bottom-0 top-0 my-auto ml-2 h-1/2 object-cover" 
+                    loading="lazy" 
+                    src="/icons/search.svg" 
+                    alt="search icon" 
+                />
                 <input 
                     className="text-xs placeholder-black border-solid border-black border-[1px] rounded-[5px] mr-2 pl-[35px] py-2 w-full min-w-[90px]" 
                     value={searchValue}
                     placeholder="Search products, brands and categories" 
                     ref={searchRef}
-                    onChange={(e) => {
-                        setSearchValue(e.target.value); // Updates the search value on input change
-                        searchRef.current?.focus(); // Keeps the focus on the search input
-                    }}
-                    onKeyDown={(e) => {
-                        e.key === "Enter" && searchProduct(); // Initiates the search on Enter key press
-                    }}
+                    onChange={handleSearchChange}
+                    onKeyDown={handleKeyDown}
                 />
                 <button 
                     className="h-full px-3 hidden bg-orange hover:bg-orange-dark text-xs font-bold text-white rounded-md ml-auto sm:block"
-                    onClick={searchProduct}>
+                    onClick={searchProduct}
+                >
                     SEARCH
                 </button>
             </div>
         );
-    };
+    }, [searchValue, handleSearchChange, handleKeyDown, searchProduct]);
 
-    /**
-     * Renders the bottom section of the header, including the logo, search bar, and right menu.
-     * @returns {JSX.Element} The full bottom header section.
-     */
     return (
-        <div className="header-bottom horizontal-center py-3 px-4 bg-black sm:bg-white">
-            <div className="header-bottom-container flex gap-5 w-full lg:max-w-[950px] xl:max-w-[1184px] sm:justify-between">
-                <LogoSection />
-                <SearchBar />
-                <HeaderBtmRight {...{isLoggedIn}}/>
+        <div className={containerStyles.outer}>
+            <div className={containerStyles.inner}>
+                {LogoSection}
+                {SearchBar}
+                <HeaderBtmRight />
             </div>
         </div>
     );
 }
+
+HeaderBottomSection.displayName = 'HeaderBottomSection';
+
+export default React.memo(HeaderBottomSection);
