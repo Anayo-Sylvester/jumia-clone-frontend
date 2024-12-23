@@ -88,7 +88,6 @@ const UserAuth = () => {
               'Authorization': `Bearer ${token}`
             }
           });
-          
           if (isMounted) {
             setIsLoggedIn(isTokenValid.status === 200);
           }

@@ -149,7 +149,6 @@ CartItemStructure.propTypes = {
   productId: PropTypes.string.isRequired,
   isFirstItem: PropTypes.bool.isRequired,
   handleDeleteCartItem: PropTypes.func.isRequired,
-  price: PropTypes.string.isRequired
 };
 
 CartItemStructure.displayName = 'CartItemStructure';
