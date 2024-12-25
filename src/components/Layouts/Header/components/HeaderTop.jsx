@@ -40,7 +40,7 @@ export default function HeaderTop() {
             <img 
                 className="jumia-pay ml-2 md:mr-auto h-3 grayscale cursor-pointer hover:grayscale-0" 
                 src={`${process.env.PUBLIC_URL}/icons/jumiaPay-logo.png`}
-                alt="jumia pay logo"
+                alt="jumia pay logo opppppppp"
                 onClick={openJumiaPayWebsite}
                 loading="lazy"
             />
