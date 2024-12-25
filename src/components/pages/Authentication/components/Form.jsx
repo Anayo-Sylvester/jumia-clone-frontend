@@ -87,6 +87,7 @@ const Form = ({ param }) => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loginData, setLoginData] = useState({});
+  const [showPasswordError, setShowPasswordError] = useState(false);
 
   const refs = {
     email: { input: useRef(null), span: useRef(null) },
@@ -114,10 +115,18 @@ const Form = ({ param }) => {
     setLoginData((prev) => ({ ...prev, [name]: value.trim() }));
   };
 
+  const handlePasswordInput = (e) => {
+    const value = e.target.value.trim();
+    editInputValue(e);
+    setShowPasswordError(param === 'register' && value && !validatePassword(value));
+  };
+
   const handleSuccess = useCallback(async (response) => {
     if (param === 'login' && response.status === 200) {
       handleLogIn();
-    } else if (param === 'register') {
+    }else if(param === 'login' && response.status !== 200){
+      setData(false, 'Failed to login, incorrect password or email');
+    }else if (param === 'register') {
       setData(true, 'Registration successful, please login');
       navigate('/login');
     }
@@ -206,19 +215,32 @@ const Form = ({ param }) => {
         disabled={isSubmitting}
         validate={validateEmail}
       />
-      <InputField
-        type="password"
-        name="password"
-        placeholder="Enter Password*"
-        value={loginData.password || ''}
-        spanRef={refs.password.span}
-        inputRef={refs.password.input}
-        onInput={editInputValue}
-        onFocus={() => handleInputFocus(refs.password.span)}
-        onBlur={() => handleInputBlur(refs.password.span, refs.password.input)}
-        disabled={isSubmitting}
-        validate={param === 'register' ? validatePassword : undefined}
-      />
+      <div className="relative">
+        <InputField
+          type="password"
+          name="password"
+          placeholder="Enter Password*"
+          value={loginData.password || ''}
+          spanRef={refs.password.span}
+          inputRef={refs.password.input}
+          onInput={handlePasswordInput}
+          onFocus={() => handleInputFocus(refs.password.span)}
+          onBlur={() => handleInputBlur(refs.password.span, refs.password.input)}
+          disabled={isSubmitting}
+          validate={param === 'register' ? validatePassword : undefined}
+        />
+        {showPasswordError && (
+          <div className="mt-2 text-xs text-red-500">
+            Password must contain:
+            <ul className="list-disc list-inside ml-2">
+              <li>At least 8 characters</li>
+              <li>At least one letter (A-Z)</li>
+              <li>At least one number (0-9)</li>
+              <li>At least one special character (#?!@$%^&*-)</li>
+            </ul>
+          </div>
+        )}
+      </div>
       {param === 'register' && (
         <InputField
           type="password"
