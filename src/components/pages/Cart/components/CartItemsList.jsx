@@ -14,7 +14,7 @@ const CartItemStructure = lazy(() => import('./CartItemsStructure'));
  * @param {Object} props
  * @param {Array} props.items - Array of cart items to display
  */
-export const CartItemsList = ({ items }) => {
+export const CartItemsList = ({ items, setIsConfirmingOrder }) => {
   return (
     <div className="flex flex-col gap-4">
       {items.map((item, id) => (
@@ -23,12 +23,10 @@ export const CartItemsList = ({ items }) => {
           fallback={<LoadingFallback />}
         >
           <CartItemStructure
-            name={item.productDetails.name}
-            quantity={item.quantity}
-            image={item.productDetails.image}
-            price={item.productDetails.currentPrice}
+            {...item.productDetails}
             itemId={item._id}
             productId={item.productId}
+            quantity={item.quantity}
             inStock={item.instock}
             isFirstItem={id === 0}
             handleDeleteCartItem={handleDeleteCartItem}
@@ -36,7 +34,10 @@ export const CartItemsList = ({ items }) => {
           />
         </Suspense>
       ))}
-      <button className="bg-orange w-fit py-2 px-4 mx-auto text-white rounded-sm hover:bg-orange-dark">
+      <button 
+        className="bg-orange w-fit py-2 px-4 mx-auto text-white rounded-sm hover:bg-orange-dark"
+        onClick={() => setIsConfirmingOrder(prev => !prev)}
+        >
         ORDER
       </button>
     </div>
@@ -57,6 +58,7 @@ CartItemsList.propTypes = {
       instock: PropTypes.bool.isRequired,
     })
   ).isRequired,
+  setIsConfirmingOrder: PropTypes.func.isRequired
 };
 
 export default CartItemsList;

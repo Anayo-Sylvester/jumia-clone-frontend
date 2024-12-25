@@ -30,8 +30,6 @@ export const enableCartButtons = () => {
 
 };
 
-
-
 // Function to handle the deletion of an item
 export const handleDeleteCartItem = async (itemId) => {
   try{
@@ -54,7 +52,6 @@ export const handleDeleteCartItem = async (itemId) => {
     return false;
   }
 };
-
 
 export const fetchCart = async () => {
   const response = await fetch(`${apiBaseUrl}/cart`, {
@@ -93,5 +90,47 @@ export const handleUpdateCartItem = async (e, itemId, quantity) => {
     return false;
   } finally {
     enableCartButtons();
+  }
+};
+
+export const handleCreateCart = async (data) => {
+  try {
+    const formattedItems = data.Hits.map(item => ({
+      productId: item.productId,
+      quantity: item.quantity,
+      price: item.productDetails.currentPrice
+    }));
+
+    const totalAmount = data.Hits.reduce((sum, item) => 
+      sum + (item.productDetails.currentPrice * item.quantity), 0
+    );
+
+    const orderData = {
+      items: formattedItems,
+      totalAmount,
+      shippingAddress: {
+        street: data.formData.street,
+        city: data.formData.city,
+        state: data.formData.state
+      }
+    };
+
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/order`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem('jumiaCloneToken')}`
+      },
+      body: JSON.stringify(orderData)
+    });
+console.log({ response });
+    if (response.ok && response.status === 201) {
+      return true;
+    }else{
+      return false;
+    }
+    
+  } catch (error) {
+      return false;
   }
 };

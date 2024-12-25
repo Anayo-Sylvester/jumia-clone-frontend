@@ -10,6 +10,7 @@ const RoutesEl = lazy(() => import('./routes/Routes'));
 // Exporting various URL paths for convenience
 export const urls = {
   cart: `${process.env.PUBLIC_URL}/cart`,
+  order: `${process.env.PUBLIC_URL}/order`,
   home: `${process.env.PUBLIC_URL}/`,
   notfound: `${process.env.PUBLIC_URL}/*`,
   help: `${process.env.PUBLIC_URL}/help`,

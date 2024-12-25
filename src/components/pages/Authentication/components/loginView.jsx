@@ -20,17 +20,6 @@ const Toast = lazy(() => import('../../../Layouts/Toast/Toast'));
  */
 const LoginView = ({ action }) => {
   const {setIsLoggedInState} = useContext(AuthContext);
-  const [isToastVisible, setIsToastVisible] = useState(false);
-  const [toastData, setToastData] = useState({
-    success: false,
-    message: '',
-  });
-
-  // Memoize toast state updater
-  const handleToastUpdate = useCallback((success, message) => {
-    setToastData({ success, message });
-    setIsToastVisible(true);
-  }, []);
 
   // Memoize main content
   const mainContent = useMemo(() => (
@@ -39,8 +28,6 @@ const LoginView = ({ action }) => {
         <Info />
         <Form
           setIsLoggedIn={setIsLoggedInState}
-          setIsToastVisible={setIsToastVisible}
-          setToastData={setToastData}
           param={action}
         />
       </Suspense>
@@ -53,12 +40,6 @@ const LoginView = ({ action }) => {
         {mainContent}
         <Suspense fallback={<LoadingFallback />}>
           <Footer />
-          <Toast
-            success={toastData.success}
-            message={toastData.message}
-            isToastVisible={isToastVisible}
-            setIsToastVisible={setIsToastVisible}
-          />
         </Suspense>
       </div>
     </div>

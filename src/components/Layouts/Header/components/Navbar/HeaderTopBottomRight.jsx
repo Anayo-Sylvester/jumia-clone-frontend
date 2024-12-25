@@ -16,7 +16,7 @@ import { urls } from "../../../../../App";
  */
 const HeaderTopBottomRight = () => {
     const navigate = useNavigate();
-    const { isLoggedInState, handleLogout } = useContext(AuthContext);
+    const { isLoggedInState, handleLogOut } = useContext(AuthContext);
 
     // Memoize dropdown close handler
     const closeHandler = useCallback(() => {
@@ -25,9 +25,9 @@ const HeaderTopBottomRight = () => {
 
     // Memoize account options
     const accountOptions = useMemo(() => [
-        { name: "My Account", icon: `${process.env.PUBLIC_URL}/icons/user-icon.svg`, link: "" },
-        { name: "Orders", icon: `${process.env.PUBLIC_URL}/icons/orders-icon.svg`, link: "" },
-        { name: "Saved Items", icon: `${process.env.PUBLIC_URL}/icons/empty-heart-icon.svg`, link: "" },
+        { name: "My Account", icon: `${process.env.PUBLIC_URL}/icons/user-icon.svg`, link: "/account" },
+        { name: "Orders", icon: `${process.env.PUBLIC_URL}/icons/orders-icon.svg`, link: "/order" },
+        { name: "Saved Items", icon: `${process.env.PUBLIC_URL}/icons/empty-heart-icon.svg`, link: "/saved-items" },
     ], []);
 
     // Setup click listener for closing dropdowns
@@ -40,17 +40,17 @@ const HeaderTopBottomRight = () => {
     const handleAuth = useCallback((e) => {
         e.stopPropagation();
         if(isLoggedInState) {
-            handleLogout();
+            handleLogOut();
             navigate(0);
         } else {
             navigate('/login');
         }
-    }, [isLoggedInState, handleLogout, navigate]);
+    }, [isLoggedInState, handleLogOut, navigate]);
 
     // State to manage menu items
     const [menuItems, setMenuItems] = useState([]);
 
-    // Update menu items whenever `isLoggedInState` changes
+    // Update menu items whenever auth state changes
     useEffect(() => {
         setMenuItems([
             {
@@ -77,7 +77,7 @@ const HeaderTopBottomRight = () => {
                 subMenu: null,
             },
         ]);
-    }, [isLoggedInState]);
+    }, [isLoggedInState]); // Add isLoggedInState as dependency
 
     // Close dropdowns when clicking outside
     useEffect(() => {
@@ -90,12 +90,20 @@ const HeaderTopBottomRight = () => {
     function renderAccountSubMenu() {
         const AccountSubMenuItem = ({ name, icon, link }) => (
             <li>
-                <Link to={link} className="flex p-2 items-center">
+                <Link 
+                    to={link} 
+                    className="flex p-2 items-center hover:text-orange"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        closeAllDropdowns();
+                    }}
+                >
                     <img loading='lazy' className="h-4 mr-3" src={icon} alt={`${name} icon`} />
                     <p className="text-xs">{name}</p>
                 </Link>
             </li>
         );
+
         return (
             <ul className="absolute top-[88px] w-[150px] rounded-md shadow-md bg-white z-10">
                 <li className="grid place-items-center p-[12px] border-b-[1px] border-gray-300">
@@ -103,7 +111,10 @@ const HeaderTopBottomRight = () => {
                         className={`text-white text-[12px] py-1 rounded-md ${
                             isLoggedInState ? "bg-red-600 hover:bg-red-800 px-8" : "px-10 bg-orange hover:bg-orange-dark"
                         }`}
-                        onClick={handleAuth}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleAuth(e);
+                        }}
                     >
                         {isLoggedInState ? 'LOGOUT' : 'LOGIN'}
                     </button>

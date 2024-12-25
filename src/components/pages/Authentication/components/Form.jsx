@@ -1,8 +1,9 @@
-import React, { useState, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useRef, useCallback, useMemo, useContext } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
-import { apiBaseUrl } from '../../../../App';
-import useAuth from '../../../../hooks/UserAuth';
+import { useNavigate, Link } from 'react-router-dom';
+import { ToastContext } from '../../../Layouts/Toast/Logic/logic';
+import { AuthContext } from '../../../../contexts/AuthContext';
+import queryClient from '../../../../utils/queryClient';
 
 /**
  * InputField Component - Reusable form input field with floating label
@@ -80,11 +81,12 @@ InputField.displayName = 'InputField';
  * @param {Function} props.setIsLoggedIn - Function to update login state
  */
 
-const Form = ({ param, setIsLoggedIn, setIsToastVisible, setToastData }) => {
+const Form = ({ param }) => {
+  const { setData } = useContext(ToastContext);
+  const { handleLogIn } = useContext(AuthContext);
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loginData, setLoginData] = useState({});
-  const { handleLogIn } = useAuth(); // Destructure handleLogIn from useAuth
 
   const refs = {
     email: { input: useRef(null), span: useRef(null) },
@@ -112,58 +114,41 @@ const Form = ({ param, setIsLoggedIn, setIsToastVisible, setToastData }) => {
     setLoginData((prev) => ({ ...prev, [name]: value.trim() }));
   };
 
+  const handleSuccess = useCallback(async (response) => {
+    if (param === 'login' && response.status === 200) {
+      handleLogIn();
+    } else if (param === 'register') {
+      setData(true, 'Registration successful, please login');
+      navigate('/login');
+    }
+    
+    setLoginData((prev) => ({ ...prev, password: '', confirmPassword: '' }));
+    setIsSubmitting(false);
+  }, [param, navigate, setData, queryClient]);
+
+
   const mutation = useMutation({
     mutationFn: async (data) => {
-      const response = await fetch(`${apiBaseUrl}/auth/${param}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/${param}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
+      
       const responseData = await response.json();
-      return { data: responseData, status: response.status };
-    },
-    onSuccess: async (response) => {
-      if (response.status === 200 && response.data?.token) {
-        try {
-          const loginSuccess = await handleLogIn(response);
-          if (loginSuccess) {
-            navigate('/') // Only navigate if login was successful 
-            window.location.reload();
-          } else {
-            console.error('Error: Failed to save token or username in localStorage.');
-          }
-        } catch (error) {
-          console.error('Error during login process:', error);
-        }
-      } else if (response.status === 201) {
-        navigate('/login');
-        setIsToastVisible(true);
-        setToastData((prevData) => ({
-          ...prevData,
-          message: 'Registered successfully, please login',
-          success: true,
-        }));
-      } else {
-        setLoginData((prev) => ({ ...prev, password: '', confirmPassword: '' }));
-        setToastData((prevData) => ({
-          ...prevData,
-          message: response.data.msg,
-          success: false,
-        }));
-        setIsToastVisible(true);
+      
+      if (!response.ok) {
+        throw new Error(responseData.msg || 'Authentication failed');
       }
-      setIsSubmitting(false);
-    },    
-    onError: (error) => {
-      setIsToastVisible(true);
-      setToastData((prevData) => ({
-        ...prevData,
-        message: error.message,
-        success: false,
-      }));
-      setIsSubmitting(false);
-      setLoginData((prev) => ({ ...prev, password: '', confirmPassword: '' }));
+      
+      // Return structured response
+      return { 
+        status: response.status, 
+        data: responseData 
+      };
     },
+    onSuccess: handleLogIn,
+    onError: handleSuccess,
   });
 
   const handleSubmit = async (e) => {
@@ -172,6 +157,7 @@ const Form = ({ param, setIsLoggedIn, setIsToastVisible, setToastData }) => {
     try {
       await mutation.mutate(loginData);
     } catch (error) {
+      setData(false, 'Authentication failed');
       console.error('Form submission error:', error);
     }
   };
@@ -256,7 +242,23 @@ const Form = ({ param, setIsLoggedIn, setIsToastVisible, setToastData }) => {
       >
         {isSubmitting ? 'Processing...' : param === 'login' ? 'Login' : 'Register'}
       </button>
-      {/* Footer Text */}
+      <p className="text-center text-gray-600">
+        {param === 'login' ? (
+          <>
+            Don't have an account?{' '}
+            <Link to="/register" className="text-orange hover:underline font-medium">
+              Register
+            </Link>
+          </>
+        ) : (
+          <>
+            Already have an account?{' '}
+            <Link to="/login" className="text-orange hover:underline font-medium">
+              Login
+            </Link>
+          </>
+        )}
+      </p>
     </form>
   );
 };

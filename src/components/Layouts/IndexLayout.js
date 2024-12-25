@@ -37,12 +37,7 @@ function Layout() {
 
   // Memoize header section
   const headerSection = useMemo(() => (
-    !isAuthPage && !isCartPage && (
-      <>
-        <Header />
-        <IndexToastUi />
-      </>
-    )
+    !isAuthPage && !isCartPage && <Header />
   ), [isAuthPage, isCartPage]);
 
   // Memoize main content
@@ -56,6 +51,7 @@ function Layout() {
   return (
     <Suspense fallback={<LoadingFallback />}>
       {headerSection}
+      <IndexToastUi />
       {mainContent}
     </Suspense>
   );

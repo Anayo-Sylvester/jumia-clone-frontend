@@ -8,6 +8,7 @@ import Categories from "../components/pages/Categories";  // Importing the Categ
 import { AuthenticationPage } from "../components/pages/Authentication/Authentication";  // Importing AuthenticationPage component
 import { useContext } from "react";
 import { AuthContext, AuthContextProvider } from "../contexts/AuthContext";
+import OrderUI from "../components/pages/Order";
 
 /**
  * RoutesEl Component
@@ -51,6 +52,9 @@ const RoutesEl = () => {
         {
             path: `${process.env.PUBLIC_URL}/register`,  // Register page route
             element: <AuthenticationPage/>
+        },{
+            path: `${process.env.PUBLIC_URL}/order`,  // Order page route
+            element: <OrderUI/>
         }        
     ];
 

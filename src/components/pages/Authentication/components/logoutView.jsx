@@ -1,4 +1,4 @@
-import React, { useContext, useCallback, useMemo } from "react";
+import React, { useContext, useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { AuthContext } from "../../../../contexts/AuthContext";
 import PropTypes from 'prop-types';
@@ -12,17 +12,15 @@ import PropTypes from 'prop-types';
  */
 export default function LogoutView() {
     const navigate = useNavigate();
-    const { handleLogout } = useContext(AuthContext);
+    const { handleLogOut } = useContext(AuthContext);
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
 
     // Memoize navigation handler
     const handleCancel = useCallback(() => {
         navigate("/");
     }, [navigate]);
 
-    // Memoize logout handler
-    const handleLogoutClick = useCallback(() => {
-        handleLogout();
-    }, [handleLogout]);
+
 
     // Memoize message section
     const messageSection = useMemo(() => (
@@ -41,19 +39,25 @@ export default function LogoutView() {
     const buttonSection = useMemo(() => (
         <div className="flex space-x-4">
             <button 
-                onClick={handleLogoutClick}
-                className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+                onClick={handleLogOut}
+                disabled={isLoggingOut}
+                className={`${
+                    isLoggingOut 
+                        ? 'bg-gray-400' 
+                        : 'bg-red-500 hover:bg-red-600'
+                } text-white px-4 py-2 rounded-md`}
             >
-                Logout
+                {isLoggingOut ? 'Logging out...' : 'Logout'}
             </button>
             <button 
                 onClick={handleCancel}
+                disabled={isLoggingOut}
                 className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
             >
                 Cancel
             </button>
         </div>
-    ), [handleLogoutClick, handleCancel]);
+    ), [ handleCancel, isLoggingOut]);
 
     return (
         <div className="flex flex-col items-center justify-center h-screen">
